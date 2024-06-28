@@ -1,0 +1,37 @@
+﻿@model IEnumerable<Agri__ConnectFinal.Models.StockDisplayModel>
+
+<h1>Manage Stock</h1>
+
+<form method="get">
+    <input type="text" name="searchString" placeholder="Search by name" value="@ViewData["CurrentFilter"]" />
+    <input type="submit" value="Search" />
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Grocery Name</th>
+            <th>Quantity</th>
+            <th>Edit</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null)
+        {
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.GroceryName</td>
+                    <td>@item.Quantity</td>
+                    <td><a href="@Url.Action("Edit", new { id = item.GroceryId })">Edit</a></td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="3">No data available.</td>
+            </tr>
+        }
+    </tbody>
+</table>

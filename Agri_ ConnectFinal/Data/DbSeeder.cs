@@ -1,37 +1,53 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Agri__ConnectFinal.Constants;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Agri__ConnectFinal.Data
 {
     public class DbSeeder
     {
-        public static async Task SeedDefaultData(IServiceProvider service)
+        public static async Task SeedDefaultData(IServiceProvider serviceProvider)
         {
-            var userMgr = service.GetService<UserManager<IdentityUser>>();
-            var roleMgr = service.GetService<RoleManager<IdentityRole>>();
-            //adding sme roles to db
-            await roleMgr.CreateAsync(new IdentityRole(Roles.Admin.ToString()));
-            await roleMgr.CreateAsync(new IdentityRole(Roles.User.ToString()));
+            var userMgr = serviceProvider.GetService<UserManager<IdentityUser>>();
+            var roleMgr = serviceProvider.GetService<RoleManager<IdentityRole>>();
 
-            //create admin user
+            var roles = Enum.GetNames(typeof(Roles));
 
-
-            var admin = new IdentityUser
+            foreach (var role in roles)
             {
-                UserName = "admin@gmail.com",
-                Email = "admin@gmail.com",
-                EmailConfirmed = true,
-            };
-
-            var userInDb= await userMgr.FindByEmailAsync(admin.Email);
-            if (userInDb is null)
-            {
-                await userMgr.CreateAsync(admin, "Admin@123");
-                await userMgr.AddToRoleAsync(admin,Roles.Admin.ToString());
+                if (!await roleMgr.RoleExistsAsync(role))
+                {
+                    await roleMgr.CreateAsync(new IdentityRole(role));
+                }
             }
 
+            var adminEmail = "admin@example.com";
+            var adminUser = await userMgr.FindByEmailAsync(adminEmail);
 
+            if (adminUser == null)
+            {
+                adminUser = new IdentityUser { UserName = adminEmail, Email = adminEmail, EmailConfirmed = true };
+                var createAdminResult = await userMgr.CreateAsync(adminUser, "AdminPassword123!");
+                if (createAdminResult.Succeeded)
+                {
+                    await userMgr.AddToRoleAsync(adminUser, Roles.Admin.ToString());
+                }
+            }
 
+            var employeeEmail = "employee@example.com";
+            var employeeUser = await userMgr.FindByEmailAsync(employeeEmail);
+
+            if (employeeUser == null)
+            {
+                employeeUser = new IdentityUser { UserName = employeeEmail, Email = employeeEmail, EmailConfirmed = true };
+                var createEmployeeResult = await userMgr.CreateAsync(employeeUser, "EmployeePassword123!");
+                if (createEmployeeResult.Succeeded)
+                {
+                    await userMgr.AddToRoleAsync(employeeUser, Roles.Employee.ToString());
+                }
+            }
         }
     }
 }

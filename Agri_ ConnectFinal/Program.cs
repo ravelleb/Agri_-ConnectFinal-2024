@@ -1,4 +1,6 @@
 using Agri__ConnectFinal;
+using Agri__ConnectFinal.Repositories;
+using Agri__ConnectFinal.Constants;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,12 +18,56 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.Sign
     .AddDefaultTokenProviders();
 builder.Services.AddControllersWithViews();
 
+// Register repositories
 builder.Services.AddTransient<IHomeRepository, HomeRepository>();
+builder.Services.AddTransient<ICartRepository, CartRepository>();
+builder.Services.AddTransient<StockRepository, StockRepository>();
+
 var app = builder.Build();
-//using (var scope = app.Services.CreateScope())
-//{
-//    await DbSeeder.SeedDefaultData(scope.ServiceProvider);
-//}
+
+// Create roles and an admin user
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+
+    var roles = Enum.GetNames(typeof(Roles));
+
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+
+    var adminEmail = "admin@example.com";
+    var adminUser = await userManager.FindByEmailAsync(adminEmail);
+
+    if (adminUser == null)
+    {
+        adminUser = new IdentityUser { UserName = adminEmail, Email = adminEmail };
+        var createAdminResult = await userManager.CreateAsync(adminUser, "AdminPassword123!");
+        if (createAdminResult.Succeeded)
+        {
+            await userManager.AddToRoleAsync(adminUser, Roles.Admin.ToString());
+        }
+    }
+
+    var employeeEmail = "employee@example.com";
+    var employeeUser = await userManager.FindByEmailAsync(employeeEmail);
+
+    if (employeeUser == null)
+    {
+        employeeUser = new IdentityUser { UserName = employeeEmail, Email = employeeEmail };
+        var createEmployeeResult = await userManager.CreateAsync(employeeUser, "EmployeePassword123!");
+        if (createEmployeeResult.Succeeded)
+        {
+            await userManager.AddToRoleAsync(employeeUser, Roles.Employee.ToString());
+        }
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -40,11 +86,18 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+);
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
 app.MapRazorPages();
 
 app.Run();

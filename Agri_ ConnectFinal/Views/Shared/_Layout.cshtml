@@ -7,7 +7,7 @@
     <link href="/css/bootstrap.min (2).css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
 </head>
-<body>   
+<body>
     <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="/Home/Index">Grocery Store</a>
@@ -23,31 +23,62 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/Home/Privacy">Privacy</a>
+                        <a class="nav-link" href="/Employee/Employee/Index">Employee Portal</a>
                     </li>
-                  
-                    @* <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#">Action</a>
-                            <a class="dropdown-item" href="#">Another action</a>
-                            <a class="dropdown-item" href="#">Something else here</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Separated link</a>
-                        </div>
-                    </li> *@
                 </ul>
-              <partial name="_LoginPartial"/>
+                @await Html.PartialAsync("_LoginPartial")
             </div>
         </div>
     </nav>
     <div class="container">
         @RenderBody()
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        async function loadCartCount() {
+            try {
+                console.log("Loading cart count...");
+                var response = await fetch('/Cart/GetTotalItemInCart');
+                if (response.ok) {
+                    var result = await response.json();
+                    console.log("Cart count loaded:", result);
+                    var cartCountEl = document.getElementById("cartCount");
+                    if (cartCountEl) {
+                        cartCountEl.innerHTML = result.cartItem;
+                    }
+                } else {
+                    console.error('Failed to load cart count:', response.statusText);
+                }
+            } catch (err) {
+                console.error('Error loading cart count:', err);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            loadCartCount();
+        });
+
+        async function add(groceryId) {
+            try {
+                console.log("Adding item to cart:", groceryId);
+                var response = await fetch(`/Cart/AddItem?groceryId=${groceryId}`, {
+                    method: 'POST'
+                });
+                if (response.ok) {
+                    var result = await response.json();
+                    console.log("Item added to cart. New cart count:", result);
+                    var cartCountEl = document.getElementById("cartCount");
+                    if (cartCountEl) {
+                        cartCountEl.innerHTML = result.cartCount;
+                    }
+                } else {
+                    console.error('Failed to add item to cart:', response.statusText);
+                }
+            } catch (err) {
+                console.error('Error adding item to cart:', err);
+            }
+        }
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
 </html>
-
-
-@await RenderSectionAsync("Scripts", required: false)

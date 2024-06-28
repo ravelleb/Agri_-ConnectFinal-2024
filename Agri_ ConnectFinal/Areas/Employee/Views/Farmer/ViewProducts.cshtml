@@ -1,0 +1,39 @@
+﻿@model IEnumerable<Agri__ConnectFinal.Models.Grocery>
+
+<h1>Products from Farmer</h1>
+
+<form method="get">
+    <div>
+        <label>Product Type</label>
+        <input type="text" name="productType" />
+    </div>
+    <div>
+        <label>Start Date</label>
+        <input type="date" name="startDate" />
+    </div>
+    <div>
+        <label>End Date</label>
+        <input type="date" name="endDate" />
+    </div>
+    <button type="submit">Filter</button>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Grocery Name</th>
+            <th>Price</th>
+            <th>Quantity</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var grocery in Model)
+        {
+            <tr>
+                <td>@grocery.GroceryName</td>
+                <td>@grocery.Price</td>
+                <td>@grocery.Stock.Quantity</td>
+            </tr>
+        }
+    </tbody>
+</table>

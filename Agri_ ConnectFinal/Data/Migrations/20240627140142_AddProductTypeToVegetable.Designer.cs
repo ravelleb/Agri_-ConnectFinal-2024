@@ -4,6 +4,7 @@ using Agri__ConnectFinal.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Agri__ConnectFinal.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240627140142_AddProductTypeToVegetable")]
+    partial class AddProductTypeToVegetable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -416,7 +419,7 @@ namespace Agri__ConnectFinal.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("Agri__ConnectFinal.Models.ShoppingCart", "ShoppingCart")
-                        .WithMany("CartDetails")
+                        .WithMany()
                         .HasForeignKey("ShoppingCartId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -528,11 +531,6 @@ namespace Agri__ConnectFinal.Data.Migrations
             modelBuilder.Entity("Agri__ConnectFinal.Models.Order", b =>
                 {
                     b.Navigation("OrderDetails");
-                });
-
-            modelBuilder.Entity("Agri__ConnectFinal.Models.ShoppingCart", b =>
-                {
-                    b.Navigation("CartDetails");
                 });
 
             modelBuilder.Entity("Agri__ConnectFinal.Models.Vegetable", b =>

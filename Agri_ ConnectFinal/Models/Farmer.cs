@@ -4,14 +4,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Agri__ConnectFinal.Models
 {
-    [Table("ShoppingCart")]
-    public class ShoppingCart
+    [Table("Farmer")]
+    public class Farmer
     {
         public int Id { get; set; }
 
         [Required]
-        public string UserId { get; set; }
-        public bool IsDeleted { get; set; } = false;
-        public ICollection<CartDetail> CartDetails { get; set; }
+        [MaxLength(100)]
+        public string Name { get; set; }
+
+        public ICollection<Grocery> Groceries { get; set; }
     }
 }
